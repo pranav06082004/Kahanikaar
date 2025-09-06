@@ -1,21 +1,34 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Navigation from "@/components/Navigation";
 import { BookOpen, Mail, Lock, User, Eye, EyeOff } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
+import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "sonner";
 
 const Login = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     password: ""
   });
+
+  const { signIn, signUp, signInWithGoogle, user } = useAuth();
+  const navigate = useNavigate();
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (user) {
+      navigate('/library');
+    }
+  }, [user, navigate]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
@@ -24,18 +37,43 @@ const Login = () => {
     });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Mock authentication - in real app, this would call an API
-    console.log("Auth form submitted:", formData);
-    alert(`${isLogin ? "Login" : "Signup"} successful! Redirecting to library...`);
-    // In real app: redirect to /library
+    setLoading(true);
+
+    try {
+      if (isLogin) {
+        const { error } = await signIn(formData.email, formData.password);
+        if (error) {
+          toast.error(error.message);
+        } else {
+          toast.success("Welcome back!");
+          navigate('/library');
+        }
+      } else {
+        const { error } = await signUp(formData.email, formData.password, formData.name);
+        if (error) {
+          toast.error(error.message);
+        } else {
+          toast.success("Account created! Please check your email to verify your account.");
+        }
+      }
+    } catch (error) {
+      toast.error("An unexpected error occurred");
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleGoogleAuth = () => {
-    // Mock Google authentication
-    console.log("Google auth triggered");
-    alert("Google authentication would be implemented here");
+  const handleGoogleAuth = async () => {
+    try {
+      const { error } = await signInWithGoogle();
+      if (error) {
+        toast.error(error.message);
+      }
+    } catch (error) {
+      toast.error("Google authentication failed");
+    }
   };
 
   return (
@@ -164,8 +202,8 @@ const Login = () => {
                 </div>
               )}
 
-              <Button type="submit" variant="hero" className="w-full h-12">
-                {isLogin ? "Sign In" : "Create Account"}
+              <Button type="submit" variant="hero" className="w-full h-12" disabled={loading}>
+                {loading ? "Please wait..." : (isLogin ? "Sign In" : "Create Account")}
               </Button>
             </form>
 

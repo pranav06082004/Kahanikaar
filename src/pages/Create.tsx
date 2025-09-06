@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -21,6 +21,10 @@ import {
   Save
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useAuth } from "@/contexts/AuthContext";
+import { useStories } from "@/hooks/useStories";
+import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
 interface StoryScene {
   id: number;
@@ -39,6 +43,17 @@ const Create = () => {
   const [story, setStory] = useState<StoryScene[]>([]);
   const [currentScene, setCurrentScene] = useState(0);
   const [storyTitle, setStoryTitle] = useState("");
+
+  const { user } = useAuth();
+  const { saveStory } = useStories();
+  const navigate = useNavigate();
+
+  // Redirect to login if not authenticated
+  useEffect(() => {
+    if (!user) {
+      navigate('/login');
+    }
+  }, [user, navigate]);
 
   const genres = [
     "Adventure", "Fantasy", "Fairy Tale", "Mythology", 
@@ -119,22 +134,25 @@ const Create = () => {
     console.log(`Regenerating ${type} for scene ${sceneId}`);
   };
 
-  const saveStory = () => {
-    // Save to localStorage for demo
-    const savedStories = JSON.parse(localStorage.getItem('kahanikar_stories') || '[]');
-    const newStory = {
-      id: Date.now(),
-      title: storyTitle,
-      scenes: story,
-      createdAt: new Date().toISOString(),
-      genre,
-      tone,
-      audience,
-      artStyle
-    };
-    savedStories.push(newStory);
-    localStorage.setItem('kahanikar_stories', JSON.stringify(savedStories));
-    alert('Story saved to your library!');
+  const handleSaveStory = async () => {
+    if (!story.length || !user) return;
+    
+    try {
+      await saveStory({
+        title: storyTitle,
+        description: storyIdea,
+        genre,
+        tone,
+        audience,
+        art_style: artStyle,
+        scenes: story,
+        thumbnail_url: story[0]?.imageUrl
+      });
+      
+      toast.success("Story saved to your library!");
+    } catch (error) {
+      toast.error("Failed to save story");
+    }
   };
 
   return (
@@ -275,7 +293,7 @@ const Create = () => {
                     </div>
                   </div>
                   <div className="flex gap-2">
-                    <Button variant="outline" size="sm" onClick={saveStory}>
+                    <Button variant="outline" size="sm" onClick={handleSaveStory}>
                       <Save className="w-4 h-4 mr-2" />
                       Save
                     </Button>
