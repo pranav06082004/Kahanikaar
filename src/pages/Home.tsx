@@ -104,7 +104,48 @@ const Home = () => {
                 </Link>
               </Button>
               
-              <Button variant="outline" size="xl" className="group">
+              <Button 
+                variant="outline" 
+                size="xl" 
+                className="group"
+                onClick={() => {
+                  // Demo story data
+                  const demoStory = {
+                    title: "The Magic Garden",
+                    scenes: [
+                      {
+                        text: "Once upon a time, in a small village, there lived a curious little girl named Maya who loved exploring.",
+                        imageUrl: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=500&h=300&fit=crop"
+                      },
+                      {
+                        text: "One day, Maya discovered a hidden garden behind her grandmother's house, filled with flowers that glowed in the moonlight.",
+                        imageUrl: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=500&h=300&fit=crop"
+                      }
+                    ]
+                  };
+                  
+                  // Create demo modal
+                  const modal = document.createElement('div');
+                  modal.className = 'fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4';
+                  modal.innerHTML = `
+                    <div class="bg-background rounded-lg p-6 max-w-2xl w-full max-h-[80vh] overflow-y-auto">
+                      <h2 class="text-2xl font-bold mb-4">Demo: ${demoStory.title}</h2>
+                      <div class="space-y-4">
+                        ${demoStory.scenes.map((scene, index) => `
+                          <div class="border rounded-lg p-4">
+                            <img src="${scene.imageUrl}" alt="Scene ${index + 1}" class="w-full h-48 object-cover rounded mb-3">
+                            <p class="text-muted-foreground">${scene.text}</p>
+                          </div>
+                        `).join('')}
+                      </div>
+                      <button onclick="this.parentElement.parentElement.remove()" class="mt-4 px-4 py-2 bg-primary text-primary-foreground rounded hover:bg-primary/90">
+                        Close Demo
+                      </button>
+                    </div>
+                  `;
+                  document.body.appendChild(modal);
+                }}
+              >
                 <Play className="w-5 h-5 mr-2" />
                 Watch Demo
               </Button>

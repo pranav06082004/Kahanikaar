@@ -1,10 +1,12 @@
 import { Button } from "@/components/ui/button";
-import { BookOpen, Sparkles, Library, User, Info, Mail, Menu, X } from "lucide-react";
+import { BookOpen, Sparkles, Library, User, Info, Mail, Menu, X, LogOut } from "lucide-react";
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Navigation = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { user, signOut } = useAuth();
   const location = useLocation();
 
   const navItems = [
@@ -57,13 +59,25 @@ const Navigation = () => {
 
           {/* User Actions */}
           <div className="hidden md:flex items-center space-x-3">
-            <Button variant="outline" size="sm">
-              <User className="w-4 h-4" />
-              Login
-            </Button>
-            <Button variant="hero" size="sm">
-              Start Creating
-            </Button>
+            {user ? (
+              <Button variant="outline" size="sm" onClick={() => signOut()}>
+                <LogOut className="w-4 h-4 mr-2" />
+                Logout
+              </Button>
+            ) : (
+              <Link to="/login">
+                <Button variant="outline" size="sm">
+                  <User className="w-4 h-4 mr-2" />
+                  Login
+                </Button>
+              </Link>
+            )}
+            <Link to="/create">
+              <Button variant="hero" size="sm">
+                <Sparkles className="w-4 h-4 mr-2" />
+                Start Creating
+              </Button>
+            </Link>
           </div>
 
           {/* Mobile menu button */}
@@ -102,14 +116,25 @@ const Navigation = () => {
               );
             })}
             <div className="mt-4 space-y-2">
-              <Button variant="outline" className="w-full justify-start">
-                <User className="w-4 h-4 mr-2" />
-                Login
-              </Button>
-              <Button variant="hero" className="w-full justify-start">
-                <Sparkles className="w-4 h-4 mr-2" />
-                Start Creating
-              </Button>
+              {user ? (
+                <Button variant="outline" className="w-full justify-start" onClick={() => signOut()}>
+                  <LogOut className="w-4 h-4 mr-2" />
+                  Logout
+                </Button>
+              ) : (
+                <Link to="/login">
+                  <Button variant="outline" className="w-full justify-start">
+                    <User className="w-4 h-4 mr-2" />
+                    Login
+                  </Button>
+                </Link>
+              )}
+              <Link to="/create">
+                <Button variant="hero" className="w-full justify-start">
+                  <Sparkles className="w-4 h-4 mr-2" />
+                  Start Creating
+                </Button>
+              </Link>
             </div>
           </div>
         </div>

@@ -20,8 +20,11 @@ import {
   Grid3X3,
   List
 } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
+import { useAuth } from "@/contexts/AuthContext";
+import { useStories } from "@/hooks/useStories";
+import { toast } from "sonner";
 
 interface SavedStory {
   id: number;
@@ -35,17 +38,21 @@ interface SavedStory {
 }
 
 const Library = () => {
-  const [stories, setStories] = useState<SavedStory[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [sortBy, setSortBy] = useState("newest");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [selectedGenre, setSelectedGenre] = useState("");
 
+  const { user } = useAuth();
+  const { stories, loading, deleteStory } = useStories();
+  const navigate = useNavigate();
+
+  // Redirect to login if not authenticated
   useEffect(() => {
-    // Load stories from localStorage
-    const savedStories = JSON.parse(localStorage.getItem('kahanikar_stories') || '[]');
-    setStories(savedStories);
-  }, []);
+    if (!user) {
+      navigate('/login');
+    }
+  }, [user, navigate]);
 
   const filteredStories = stories
     .filter(story => 
@@ -55,9 +62,9 @@ const Library = () => {
     .sort((a, b) => {
       switch (sortBy) {
         case "newest":
-          return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+          return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
         case "oldest":
-          return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+          return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
         case "title":
           return a.title.localeCompare(b.title);
         default:
@@ -65,16 +72,21 @@ const Library = () => {
       }
     });
 
-  const deleteStory = (storyId: number) => {
-    const updatedStories = stories.filter(story => story.id !== storyId);
-    setStories(updatedStories);
-    localStorage.setItem('kahanikar_stories', JSON.stringify(updatedStories));
+  const handleDeleteStory = async (storyId: string) => {
+    if (confirm("Are you sure you want to delete this story?")) {
+      try {
+        await deleteStory(storyId);
+        toast.success("Story deleted successfully");
+      } catch (error) {
+        toast.error("Failed to delete story");
+      }
+    }
   };
 
-  const shareStory = (story: SavedStory) => {
+  const shareStory = (story: any) => {
     // Mock share functionality
     navigator.clipboard.writeText(`Check out my story "${story.title}" created with KahaniKaar!`);
-    alert('Story link copied to clipboard!');
+    toast.success('Story link copied to clipboard!');
   };
 
   const genres = [...new Set(stories.map(story => story.genre))].filter(Boolean);
@@ -99,7 +111,11 @@ const Library = () => {
             </p>
           </div>
 
-          {stories.length === 0 ? (
+          {loading ? (
+            <div className="text-center py-12">
+              <div className="text-muted-foreground">Loading your stories...</div>
+            </div>
+          ) : stories.length === 0 ? (
             /* Empty State */
             <motion.div
               className="text-center py-16"
@@ -220,7 +236,7 @@ const Library = () => {
 
                           <div className="flex items-center text-sm text-muted-foreground mb-4">
                             <Calendar className="w-4 h-4 mr-2" />
-                            {new Date(story.createdAt).toLocaleDateString()}
+                            {new Date(story.created_at).toLocaleDateString()}
                           </div>
 
                           <div className="flex gap-2">
@@ -237,7 +253,7 @@ const Library = () => {
                             <Button 
                               variant="outline" 
                               size="sm" 
-                              onClick={() => deleteStory(story.id)}
+                              onClick={() => handleDeleteStory(story.id)}
                               className="text-destructive hover:text-destructive"
                             >
                               <Trash2 className="w-4 h-4" />
@@ -270,7 +286,7 @@ const Library = () => {
                               <div className="flex items-center gap-4 text-sm text-muted-foreground">
                                 <span className="flex items-center">
                                   <Calendar className="w-4 h-4 mr-1" />
-                                  {new Date(story.createdAt).toLocaleDateString()}
+                                  {new Date(story.created_at).toLocaleDateString()}
                                 </span>
                                 <span>{story.scenes.length} scenes</span>
                                 {story.genre && <Badge variant="outline" className="text-xs">{story.genre}</Badge>}
@@ -291,7 +307,7 @@ const Library = () => {
                             <Button 
                               variant="outline" 
                               size="sm" 
-                              onClick={() => deleteStory(story.id)}
+                              onClick={() => handleDeleteStory(story.id)}
                               className="text-destructive hover:text-destructive"
                             >
                               <Trash2 className="w-4 h-4" />
