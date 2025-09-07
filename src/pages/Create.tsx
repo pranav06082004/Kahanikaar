@@ -25,6 +25,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useStories } from "@/hooks/useStories";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 interface StoryScene {
   id: number;
@@ -80,41 +81,40 @@ const Create = () => {
     
     setIsGenerating(true);
     
-    // Simulate API call with realistic delay
-    await new Promise(resolve => setTimeout(resolve, 3000));
-    
-    // Mock story generation - in real app, this would be AI API call
-    const mockStory: StoryScene[] = [
-      {
-        id: 1,
-        text: `Once upon a time, in the heart of a bustling Indian village, there lived a curious young girl named Meera. She had always been fascinated by the ancient stories her grandmother told her about magical creatures that lived in the nearby forest. One sunny morning, Meera decided to venture into the mysterious woods to discover these wonders for herself.`,
-        imageUrl: "https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=800&h=600&fit=crop",
-        imagePrompt: "A curious Indian girl standing at the edge of a mystical forest"
-      },
-      {
-        id: 2,
-        text: `As Meera walked deeper into the forest, she noticed something extraordinary. The trees seemed to whisper her name, and colorful butterflies danced around her in perfect harmony. Suddenly, she spotted a shimmering path made of golden leaves that led to a clearing she had never seen before.`,
-        imageUrl: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=800&h=600&fit=crop",
-        imagePrompt: "A magical forest path with golden leaves and dancing butterflies"
-      },
-      {
-        id: 3,
-        text: `In the center of the clearing stood an ancient banyan tree with silver bark that sparkled in the sunlight. As Meera approached, she heard a gentle voice calling to her. "Welcome, young seeker," said the tree. "I am the Guardian of Stories, and I have been waiting for someone pure of heart to share the greatest tale of all."`,
-        imageUrl: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=800&h=600&fit=crop",
-        imagePrompt: "An ancient silver banyan tree in a magical clearing"
-      },
-      {
-        id: 4,
-        text: `The Guardian Tree shared with Meera the secret that every person carries within them the power to create their own magical stories. "The real magic," whispered the tree, "is not in finding extraordinary things, but in seeing the extraordinary in ordinary moments." Meera smiled, understanding that her greatest adventures were just beginning.`,
-        imageUrl: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
-        imagePrompt: "A young girl listening to wisdom from a magical tree, surrounded by soft light"
+    try {
+      const { data, error } = await supabase.functions.invoke('generate-story', {
+        body: {
+          prompt: storyIdea,
+          genre,
+          tone,
+          audience,
+          artStyle
+        }
+      });
+
+      if (error) {
+        console.error('Story generation error:', error);
+        toast.error("Failed to generate story. Please try again.");
+        return;
       }
-    ];
-    
-    setStory(mockStory);
-    setStoryTitle("Meera and the Guardian of Stories");
-    setCurrentScene(0);
-    setIsGenerating(false);
+
+      if (data.error) {
+        console.error('Story generation API error:', data.error);
+        toast.error(data.error);
+        return;
+      }
+
+      setStory(data.story);
+      setStoryTitle(data.title);
+      setCurrentScene(0);
+      toast.success("Your magical story has been created!");
+      
+    } catch (error) {
+      console.error('Unexpected error:', error);
+      toast.error("Something went wrong. Please try again.");
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
   const nextScene = () => {
