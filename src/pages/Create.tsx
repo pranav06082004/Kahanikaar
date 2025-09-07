@@ -34,17 +34,16 @@ interface StoryScene {
   imagePrompt: string;
 }
 
-interface GeneratedStory {
-  id: string;
-  title: string;
-  text: string;
-  imageUrl: string;
-  timestamp: Date;
-}
-
 const Create = () => {
+  const [storyIdea, setStoryIdea] = useState("");
+  const [genre, setGenre] = useState("");
+  const [tone, setTone] = useState("");
+  const [audience, setAudience] = useState("");
+  const [artStyle, setArtStyle] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
-  const [generatedStories, setGeneratedStories] = useState<GeneratedStory[]>([]);
+  const [story, setStory] = useState<StoryScene[]>([]);
+  const [currentScene, setCurrentScene] = useState(0);
+  const [storyTitle, setStoryTitle] = useState("");
 
   const { user } = useAuth();
   const { saveStory } = useStories();
@@ -72,60 +71,89 @@ const Create = () => {
     "Young Adults", "All Ages", "Adults"
   ];
 
-  const sampleStories = [
-    {
-      title: "The Magical Peacock's Garden",
-      text: "In a hidden valley surrounded by emerald hills, there lived a magnificent peacock named Mayura whose feathers shimmered like rainbow silk. Unlike other peacocks, Mayura possessed a special gift - wherever he danced, the most beautiful flowers would bloom instantly.\n\nOne day, a terrible drought struck the land, and all the gardens withered away. The village children were heartbroken, for they had no flowers to offer at the temple festival. Mayura decided to help, spreading his magnificent tail and dancing with all his heart.\n\nAs his feet touched the dry earth, marigolds, roses, and jasmine began to sprout and bloom in magnificent colors. The entire village was filled with the sweet fragrance of flowers, and the children's laughter echoed through the valley once again.",
-      imageUrl: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&h=400&fit=crop&crop=center"
-    },
-    {
-      title: "The Little Elephant's Big Dream",
-      text: "Golu was the smallest elephant in his herd, with ears that flapped like tiny fans and a trunk that could barely reach the lowest branches. While other elephants could easily pluck mangoes from tall trees, Golu had to be content with fallen fruits.\n\nOne morning, Golu discovered a family of sparrows whose nest had fallen from a tree during a storm. The baby birds were too young to fly, and their mother was desperately chirping for help. All the big elephants were too large to help without causing more damage.\n\nBut Golu's small size was perfect! He gently used his little trunk to lift each baby bird and carefully placed them in a safe, low branch. The grateful sparrow family decided to become Golu's friends, and from that day on, they would fly ahead and tell him where the sweetest fruits had fallen.",
-      imageUrl: "https://images.unsplash.com/photo-1564349683136-77e08dba1ef7?w=400&h=400&fit=crop&crop=center"
-    },
-    {
-      title: "The Star Weaver's Gift",
-      text: "High up in the Himalayan mountains lived an old grandmother who was known throughout the villages as the Star Weaver. Every night, she would sit on her terrace with a magical spinning wheel, spinning threads of starlight into the most beautiful shawls.\n\nOne cold winter night, a poor shepherd boy knocked on her door, shivering in the mountain wind. His only goat had wandered away, and he had been searching for hours in the snow. The Star Weaver invited him in and wrapped him in one of her starlight shawls.\n\nThe moment the shawl touched his shoulders, it began to glow softly, creating a gentle light that cut through the darkness. Following the warm glow, the boy found his goat safe and sound, sheltered behind a large rock. When he returned to thank the Star Weaver, she smiled and told him the shawl was his to keep, for kindness should always be rewarded with kindness.",
-      imageUrl: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=400&fit=crop&crop=center"
-    },
-    {
-      title: "The Singing Banyan Tree",
-      text: "In the heart of a bustling Indian village stood an ancient banyan tree that was at least a thousand years old. Its massive trunk was so wide that it took twenty people holding hands to circle it, and its branches spread like a natural umbrella over half the village square.\n\nWhat made this tree truly special was that it could sing. Every evening at sunset, the tree would hum beautiful melodies that filled the air with peace and joy. The villagers believed the tree held the wisdom of ages in its songs, and many important decisions were made while sitting under its canopy.\n\nOne day, a developer wanted to cut down the tree to build a shopping mall. But when the village children formed a circle around the tree and asked it to sing, the most beautiful melody filled the air - so enchanting that even the developer's heart was touched. He decided to build his mall elsewhere, and the singing banyan tree continues to bless the village with its ancient songs.",
-      imageUrl: "https://images.unsplash.com/photo-1574263867128-3527b87b89b7?w=400&h=400&fit=crop&crop=center"
-    },
-    {
-      title: "The Rainbow Fish of the Sacred River",
-      text: "Deep in the sacred waters of the Ganges lived a special fish named Rangoli, whose scales sparkled with all the colors of the rainbow. Legend said that anyone who saw Rangoli would be blessed with good fortune, but the magical fish only appeared to those with pure hearts.\n\nA young girl named Priya visited the river every day, bringing breadcrumbs for the fish and cleaning the riverbank of any litter she found. She never asked for anything in return; she simply loved caring for the river and its creatures.\n\nOne evening, as Priya sat quietly by the water, Rangoli emerged from the depths, her scales creating ripples of color on the water's surface. The fish granted Priya a special gift - the ability to understand the language of all river creatures. From that day forward, Priya became the guardian of the river, helping to protect it with the wisdom she gained from listening to the fish, frogs, and water birds.",
-      imageUrl: "https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=400&h=400&fit=crop&crop=center"
-    },
-    {
-      title: "The Monsoon Dancing Frog",
-      text: "In a small pond surrounded by lotus flowers lived Mukul, a bright green frog who loved to dance. While other frogs were content to sit on lily pads and croak, Mukul had learned to dance from watching the classical dancers who practiced by the pond each morning.\n\nWhen the monsoon season arrived, the village faced an unusual problem - the rains were too gentle, and the crops needed more water. The villagers were worried about their harvest, and many prayers were offered to the rain gods.\n\nMukul decided to help in his own special way. He began performing an elaborate rain dance, leaping from lily pad to lily pad with graceful movements inspired by the classical dancers. His infectious joy attracted other frogs, birds, and even the village children, who joined in the celebration. Their collective dance of gratitude pleased the rain gods so much that the monsoons poured down abundantly, saving the harvest.",
-      imageUrl: "https://images.unsplash.com/photo-1619479195195-bb2e4d6ba3c3?w=400&h=400&fit=crop&crop=center"
-    }
+  const artStyles = [
+    "Indian Folk Art", "Watercolor", "Digital Art", "Pencil Sketch", 
+    "Cartoon", "Realistic", "Abstract", "Traditional Painting"
   ];
 
-  const generateStory = () => {
+  const generateStory = async () => {
+    if (!storyIdea.trim()) return;
+    
     setIsGenerating(true);
     
-    // Simulate generation delay for better UX
-    setTimeout(() => {
-      const randomStory = sampleStories[Math.floor(Math.random() * sampleStories.length)];
-      const newStory: GeneratedStory = {
-        id: Date.now().toString(),
-        title: randomStory.title,
-        text: randomStory.text,
-        imageUrl: randomStory.imageUrl,
-        timestamp: new Date()
-      };
+    try {
+      const { data, error } = await supabase.functions.invoke('generate-story', {
+        body: {
+          prompt: storyIdea,
+          genre,
+          tone,
+          audience,
+          artStyle
+        }
+      });
+
+      if (error) {
+        console.error('Story generation error:', error);
+        toast.error("Failed to generate story. Please try again.");
+        return;
+      }
+
+      if (data.error) {
+        console.error('Story generation API error:', data.error);
+        toast.error(data.error);
+        return;
+      }
+
+      setStory(data.story);
+      setStoryTitle(data.title);
+      setCurrentScene(0);
+      toast.success("Your magical story has been created!");
       
-      // Add new story at the top of the list
-      setGeneratedStories(prev => [newStory, ...prev]);
+    } catch (error) {
+      console.error('Unexpected error:', error);
+      toast.error("Something went wrong. Please try again.");
+    } finally {
       setIsGenerating(false);
-      toast.success("Your magical Kahani has been created!");
-    }, 2000);
+    }
   };
 
+  const nextScene = () => {
+    if (currentScene < story.length - 1) {
+      setCurrentScene(currentScene + 1);
+    }
+  };
+
+  const prevScene = () => {
+    if (currentScene > 0) {
+      setCurrentScene(currentScene - 1);
+    }
+  };
+
+  const regenerateScene = async (sceneId: number, type: 'text' | 'image') => {
+    // Mock regeneration
+    console.log(`Regenerating ${type} for scene ${sceneId}`);
+  };
+
+  const handleSaveStory = async () => {
+    if (!story.length || !user) return;
+    
+    try {
+      await saveStory({
+        title: storyTitle,
+        description: storyIdea,
+        genre,
+        tone,
+        audience,
+        art_style: artStyle,
+        scenes: story,
+        thumbnail_url: story[0]?.imageUrl
+      });
+      
+      toast.success("Story saved to your library!");
+    } catch (error) {
+      toast.error("Failed to save story");
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-warm">
@@ -142,85 +170,260 @@ const Create = () => {
               Create Your Magical Kahani
             </h1>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Click the button below to generate beautiful, randomly selected stories from our collection of magical tales!
+              Transform your imagination into a beautiful illustrated story. 
+              Just share your idea and watch the magic unfold!
             </p>
           </div>
 
-          {/* Generate Button */}
-          <div className="text-center mb-12">
-            <Button
-              variant="magical"
-              size="xl"
-              onClick={generateStory}
-              disabled={isGenerating}
-              className="group min-w-[250px]"
-            >
-              {isGenerating ? (
-                <>
-                  <Wand2 className="w-5 h-5 mr-2 animate-pulse" />
-                  Creating magical story...
-                </>
-              ) : (
-                <>
-                  <Sparkles className="w-5 h-5 mr-2 group-hover:animate-pulse" />
-                  Generate My Kahani!
-                </>
-              )}
-            </Button>
-          </div>
+          {!story.length ? (
+            /* Story Creation Form */
+            <Card className="max-w-4xl mx-auto p-8 shadow-story">
+              <div className="space-y-6">
+                {/* Story Idea Input */}
+                <div className="space-y-2">
+                  <Label htmlFor="storyIdea" className="text-lg font-semibold">
+                    What's your story idea? ✨
+                  </Label>
+                  <Textarea
+                    id="storyIdea"
+                    placeholder="Enter your story idea here... (e.g., 'A young girl discovers a magical garden where flowers can talk')"
+                    value={storyIdea}
+                    onChange={(e) => setStoryIdea(e.target.value)}
+                    className="min-h-[120px] text-base"
+                  />
+                </div>
 
-          {/* Generated Stories Library */}
-          {generatedStories.length > 0 && (
-            <div className="space-y-6">
-              <div className="text-center">
-                <h2 className="text-3xl font-story font-bold text-foreground mb-2">
-                  Your Kahani Library
-                </h2>
-                <p className="text-muted-foreground">
-                  {generatedStories.length} magical {generatedStories.length === 1 ? 'story' : 'stories'} created
-                </p>
-              </div>
+                {/* Options Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <Label>Genre</Label>
+                    <Select value={genre} onValueChange={setGenre}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Choose a genre" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {genres.map((g) => (
+                          <SelectItem key={g} value={g}>{g}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {generatedStories.map((story, index) => (
-                  <motion.div
-                    key={story.id}
-                    initial={{ opacity: 0, y: 20, scale: 0.95 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    transition={{ duration: 0.4, delay: index * 0.1 }}
+                  <div className="space-y-2">
+                    <Label>Tone</Label>
+                    <Select value={tone} onValueChange={setTone}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Choose a tone" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {tones.map((t) => (
+                          <SelectItem key={t} value={t}>{t}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>Audience</Label>
+                    <Select value={audience} onValueChange={setAudience}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Choose target audience" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {audiences.map((a) => (
+                          <SelectItem key={a} value={a}>{a}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>Art Style</Label>
+                    <Select value={artStyle} onValueChange={setArtStyle}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Choose art style" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {artStyles.map((style) => (
+                          <SelectItem key={style} value={style}>{style}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                {/* Generate Button */}
+                <div className="text-center pt-4">
+                  <Button
+                    variant="magical"
+                    size="xl"
+                    onClick={generateStory}
+                    disabled={!storyIdea.trim() || isGenerating}
+                    className="group min-w-[200px]"
                   >
-                    <Card className="h-full overflow-hidden hover-scale shadow-story transition-magical hover:shadow-card">
-                      <div className="aspect-video overflow-hidden">
-                        <img
-                          src={story.imageUrl}
-                          alt={story.title}
-                          className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+                    {isGenerating ? (
+                      <>
+                        <Wand2 className="w-5 h-5 mr-2 animate-pulse" />
+                        Magical words are being written...
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles className="w-5 h-5 mr-2 group-hover:animate-pulse" />
+                        Generate My Kahani!
+                      </>
+                    )}
+                  </Button>
+                </div>
+              </div>
+            </Card>
+          ) : (
+            /* Story Display */
+            <div className="space-y-6">
+              {/* Story Header */}
+              <Card className="p-6 shadow-card">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                  <div>
+                    <h2 className="text-2xl font-story font-bold text-foreground mb-2">
+                      {storyTitle}
+                    </h2>
+                    <div className="flex flex-wrap gap-2">
+                      {genre && <Badge variant="outline">{genre}</Badge>}
+                      {tone && <Badge variant="outline">{tone}</Badge>}
+                      {audience && <Badge variant="outline">{audience}</Badge>}
+                    </div>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button variant="outline" size="sm" onClick={handleSaveStory}>
+                      <Save className="w-4 h-4 mr-2" />
+                      Save
+                    </Button>
+                    <Button variant="outline" size="sm">
+                      <Download className="w-4 h-4 mr-2" />
+                      Export PDF
+                    </Button>
+                    <Button variant="outline" size="sm">
+                      <Volume2 className="w-4 h-4 mr-2" />
+                      Narrate
+                    </Button>
+                    <Button variant="outline" size="sm">
+                      <Share2 className="w-4 h-4 mr-2" />
+                      Share
+                    </Button>
+                  </div>
+                </div>
+              </Card>
+
+              {/* Story Scene */}
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={currentScene}
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <Card className="p-8 shadow-story">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                      {/* Image */}
+                      <div className="space-y-4">
+                        <div className="aspect-square rounded-2xl overflow-hidden shadow-card">
+                          <img
+                            src={story[currentScene]?.imageUrl}
+                            alt={story[currentScene]?.imagePrompt}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => regenerateScene(story[currentScene].id, 'image')}
+                          className="w-full"
+                        >
+                          <RefreshCw className="w-4 h-4 mr-2" />
+                          Regenerate Image
+                        </Button>
+                      </div>
+
+                      {/* Text */}
+                      <div className="space-y-4">
+                        <div className="bg-muted rounded-2xl p-6">
+                          <p className="text-lg leading-relaxed text-foreground">
+                            {story[currentScene]?.text}
+                          </p>
+                        </div>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => regenerateScene(story[currentScene].id, 'text')}
+                          className="w-full"
+                        >
+                          <RefreshCw className="w-4 h-4 mr-2" />
+                          Regenerate Text
+                        </Button>
+                      </div>
+                    </div>
+                  </Card>
+                </motion.div>
+              </AnimatePresence>
+
+              {/* Scene Navigation */}
+              <Card className="p-6 shadow-card">
+                <div className="flex items-center justify-between">
+                  <Button
+                    variant="outline"
+                    onClick={prevScene}
+                    disabled={currentScene === 0}
+                  >
+                    <ArrowLeft className="w-4 h-4 mr-2" />
+                    Previous
+                  </Button>
+
+                  <div className="flex items-center space-x-2">
+                    <span className="text-sm text-muted-foreground">
+                      Scene {currentScene + 1} of {story.length}
+                    </span>
+                    <div className="flex space-x-1">
+                      {story.map((_, index) => (
+                        <button
+                          key={index}
+                          onClick={() => setCurrentScene(index)}
+                          className={`w-3 h-3 rounded-full transition-colors ${
+                            index === currentScene
+                              ? "bg-primary"
+                              : "bg-muted hover:bg-muted-foreground/50"
+                          }`}
                         />
-                      </div>
-                      <div className="p-6">
-                        <h3 className="text-xl font-story font-semibold text-foreground mb-3 line-clamp-2">
-                          {story.title}
-                        </h3>
-                        <div className="text-sm text-muted-foreground mb-4">
-                          Created {story.timestamp.toLocaleDateString()} at{' '}
-                          {story.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                        </div>
-                        <p className="text-sm text-foreground leading-relaxed line-clamp-4 mb-4">
-                          {story.text}
-                        </p>
-                        <div className="flex gap-2">
-                          <Button variant="outline" size="sm" className="flex-1">
-                            <BookOpen className="w-4 h-4 mr-2" />
-                            Read Full
-                          </Button>
-                          <Button variant="outline" size="sm">
-                            <Share2 className="w-4 h-4" />
-                          </Button>
-                        </div>
-                      </div>
-                    </Card>
-                  </motion.div>
-                ))}
+                      ))}
+                    </div>
+                  </div>
+
+                  <Button
+                    variant="outline"
+                    onClick={nextScene}
+                    disabled={currentScene === story.length - 1}
+                  >
+                    Next
+                    <ArrowRight className="w-4 h-4 ml-2" />
+                  </Button>
+                </div>
+              </Card>
+
+              {/* New Story Button */}
+              <div className="text-center">
+                <Button
+                  variant="hero"
+                  onClick={() => {
+                    setStory([]);
+                    setStoryIdea("");
+                    setGenre("");
+                    setTone("");
+                    setAudience("");
+                    setArtStyle("");
+                  }}
+                >
+                  <Sparkles className="w-4 h-4 mr-2" />
+                  Create Another Story
+                </Button>
               </div>
             </div>
           )}
