@@ -79,13 +79,12 @@ Return the result strictly in this JSON array format:
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4.1-2025-04-14',
+        model: 'gpt-4o-mini',
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: `Create a story based on: ${prompt}` }
         ],
-        max_tokens: 2000,
-        temperature: 0.8,
+        max_tokens: 2000
       }),
     });
 
