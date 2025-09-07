@@ -40,7 +40,8 @@ npm install
 Start the development server:
 npm run dev
 
-Open http://localhost:8080 in your browser to view the app locally.
+Open  Local:   http://localhost:5173/
+  ➜  Network: http://10.203.147.235:5173/ in your browser to view the app locally.
 
 PROJECT STRUCTURE
 
