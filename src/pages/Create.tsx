@@ -76,19 +76,37 @@ const Create = () => {
     "Cartoon", "Realistic", "Abstract", "Traditional Painting"
   ];
 
+  const randomStoryPrompts = [
+    "A curious cat discovers a door to a magical world where colors can talk",
+    "A young baker finds that their bread rolls can grant wishes",
+    "Two best friends build a rocket ship out of cardboard and actually fly to the moon",
+    "A shy bookworm discovers they can enter any story they read",
+    "A little elephant learns to paint with their trunk and becomes famous",
+    "A robot learns what friendship means by helping a lost puppy find its way home",
+    "A magical tree grows different fruits that give people different superpowers",
+    "A young chef discovers their grandmother's secret recipe book contains spells",
+    "A lonely lighthouse keeper befriends a family of whales",
+    "A girl who can speak to flowers solves mysteries in her neighborhood"
+  ];
+
   const generateStory = async () => {
-    if (!storyIdea.trim()) return;
-    
     setIsGenerating(true);
     
     try {
+      // Generate random parameters if not set
+      const randomPrompt = storyIdea.trim() || randomStoryPrompts[Math.floor(Math.random() * randomStoryPrompts.length)];
+      const randomGenre = genre || genres[Math.floor(Math.random() * genres.length)];
+      const randomTone = tone || tones[Math.floor(Math.random() * tones.length)];
+      const randomAudience = audience || audiences[Math.floor(Math.random() * audiences.length)];
+      const randomArtStyle = artStyle || artStyles[Math.floor(Math.random() * artStyles.length)];
+
       const { data, error } = await supabase.functions.invoke('generate-story', {
         body: {
-          prompt: storyIdea,
-          genre,
-          tone,
-          audience,
-          artStyle
+          prompt: randomPrompt,
+          genre: randomGenre,
+          tone: randomTone,
+          audience: randomAudience,
+          artStyle: randomArtStyle
         }
       });
 
@@ -107,6 +125,14 @@ const Create = () => {
       setStory(data.story);
       setStoryTitle(data.title);
       setCurrentScene(0);
+      
+      // Update form fields with generated values
+      if (!storyIdea.trim()) setStoryIdea(randomPrompt);
+      if (!genre) setGenre(randomGenre);
+      if (!tone) setTone(randomTone);
+      if (!audience) setAudience(randomAudience);
+      if (!artStyle) setArtStyle(randomArtStyle);
+      
       toast.success("Your magical story has been created!");
       
     } catch (error) {
@@ -258,7 +284,7 @@ const Create = () => {
                     variant="magical"
                     size="xl"
                     onClick={generateStory}
-                    disabled={!storyIdea.trim() || isGenerating}
+                    disabled={isGenerating}
                     className="group min-w-[200px]"
                   >
                     {isGenerating ? (
