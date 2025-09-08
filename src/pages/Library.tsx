@@ -133,12 +133,16 @@ const Library = () => {
                 <p className="text-muted-foreground mb-8 text-lg">
                   Start your storytelling journey by creating your first magical kahani.
                 </p>
-                <Button variant="hero" size="lg" asChild>
-                  <Link to="/create">
-                    <Sparkles className="w-5 h-5 mr-2" />
-                    Create Your First Kahani
-                  </Link>
-                </Button>
+               <Button variant="hero" size="lg" asChild>
+  <a
+    href="https://ignite-story-canvas.vercel.app/"
+    target="_blank"
+    rel="noopener noreferrer"
+  >
+    <Sparkles className="w-5 h-5 mr-2" />
+    Create Your First Kahani
+  </a>
+</Button>
               </Card>
             </motion.div>
           ) : (

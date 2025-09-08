@@ -36,27 +36,40 @@ const Navigation = () => {
 
           {/* Desktop Navigation */}
           <div className="hidden md:block">
-            <div className="ml-10 flex items-baseline space-x-1">
-              {navItems.map((item) => {
-                const Icon = item.icon;
-                return (
-                  <Link
-                    key={item.name}
-                    to={item.path}
-                    className={`px-4 py-2 rounded-xl text-sm font-medium transition-magical flex items-center space-x-2 ${
-                      isActive(item.path)
-                        ? "bg-primary text-primary-foreground shadow-card"
-                        : "text-muted-foreground hover:text-foreground hover:bg-muted"
-                    }`}
-                  >
-                    <Icon className="w-4 h-4" />
-                    <span>{item.name}</span>
-                  </Link>
-                );
-              })}
-            </div>
-          </div>
-
+  <div className="ml-10 flex items-baseline space-x-1">
+    {navItems.map((item) => {
+      const Icon = item.icon;
+      if (item.name === "Create") {
+        return (
+          <a
+            key={item.name}
+            href="https://ignite-story-canvas.vercel.app/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className={`px-4 py-2 rounded-xl text-sm font-medium transition-magical flex items-center space-x-2 text-muted-foreground hover:text-foreground hover:bg-muted`}
+          >
+            <Icon className="w-4 h-4" />
+            <span>{item.name}</span>
+          </a>
+        );
+      }
+      return (
+        <Link
+          key={item.name}
+          to={item.path}
+          className={`px-4 py-2 rounded-xl text-sm font-medium transition-magical flex items-center space-x-2 ${
+            isActive(item.path)
+              ? "bg-primary text-primary-foreground shadow-card"
+              : "text-muted-foreground hover:text-foreground hover:bg-muted"
+          }`}
+        >
+          <Icon className="w-4 h-4" />
+          <span>{item.name}</span>
+        </Link>
+      );
+    })}
+  </div>
+</div>
           {/* User Actions */}
           <div className="hidden md:flex items-center space-x-3">
             {user ? (
@@ -72,12 +85,16 @@ const Navigation = () => {
                 </Button>
               </Link>
             )}
-            <Link to="/create">
-              <Button variant="hero" size="sm">
-                <Sparkles className="w-4 h-4 mr-2" />
-                Start Creating
-              </Button>
-            </Link>
+            <a
+  href="https://ignite-story-canvas.vercel.app/"
+  target="_blank"
+  rel="noopener noreferrer"
+>
+  <Button variant="hero" size="sm">
+    <Sparkles className="w-4 h-4 mr-2" />
+    Start Creating
+  </Button>
+</a>
           </div>
 
           {/* Mobile menu button */}

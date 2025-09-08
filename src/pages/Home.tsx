@@ -91,18 +91,22 @@ const Home = () => {
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
-              <Button 
-                variant="hero" 
-                size="xl" 
-                asChild
-                className="group"
-              >
-                <Link to="/create">
-                  <Sparkles className="w-5 h-5 mr-2 group-hover:animate-pulse" />
-                  Start Your Kahani
-                  <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
-                </Link>
-              </Button>
+             <Button 
+  variant="hero" 
+  size="xl" 
+  asChild
+  className="group"
+>
+  <a
+    href="https://ignite-story-canvas.vercel.app/"
+    target="_blank"
+    rel="noopener noreferrer"
+  >
+    <Sparkles className="w-5 h-5 mr-2 group-hover:animate-pulse" />
+    Start Your Kahani
+    <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
+  </a>
+</Button>
               
               <Button 
                 variant="outline" 
@@ -295,12 +299,16 @@ const Home = () => {
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button variant="magical" size="xl" asChild className="group">
-                <Link to="/create">
-                  <Sparkles className="w-5 h-5 mr-2 group-hover:animate-pulse" />
-                  Start Creating Now
-                </Link>
-              </Button>
+          <Button variant="magical" size="xl" asChild className="group">
+  <a
+    href="https://ignite-story-canvas.vercel.app/"
+    target="_blank"
+    rel="noopener noreferrer"
+  >
+    <Sparkles className="w-5 h-5 mr-2 group-hover:animate-pulse" />
+    Start Creating Now
+  </a>
+</Button>
               <Button variant="outline" size="xl" asChild>
                 <Link to="/about">
                   Learn More
